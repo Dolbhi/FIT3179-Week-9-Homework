@@ -1,0 +1,81 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+        "text": "Cheapest European Cities"
+    },
+    "data": {
+        "url": "city_daily_cost.csv"
+    },
+    "params": [
+        {
+            "name": "lol",
+            "value": 0,
+            "bind": {
+                "name": "Add:",
+                "input": "range",
+                "min": 0,
+                "max": 30,
+                "step": 1
+            }
+        }
+    ],
+    "transform": [
+        {
+            "calculate": "toNumber(datum.daily_cost) + toNumber(lol)",
+            "as": "mult"
+        }
+    ],
+    "encoding": {
+        "x": {
+            "field": "mult",
+            "type": "quantitative",
+            "title": "Pog"
+        },
+        "y": {
+            "field": "city",
+            "type": "nominal",
+            "title": null
+        },
+        "tooltip": [
+            {
+                "field": "daily_cost",
+                "type": "quantitative",
+                "format": ",",
+                "title": "Cost"
+            },
+            {
+                "field": "city",
+                "type": "nominal",
+                "title": "Shitty"
+            },
+            {
+                "field": "mult",
+                "type": "quantitative",
+                "format": ",",
+                "title": "LOL"
+            }
+        ]
+    },
+    "layer": [
+        {
+            "mark": "bar",
+            "encoding": {}
+        },
+        {
+            "mark": {
+                "type": "text",
+                "align": "left",
+                "baseline": "middle",
+                "dx": 6,
+                "fontSize": 11.5,
+                "fontStyle": "italic"
+            },
+            "encoding": {
+                "text": {
+                    "field": "city",
+                    "type": "nominal"
+                }
+            }
+        }
+    ]
+}
