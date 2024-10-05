@@ -1,0 +1,122 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 550,
+    "height": 450,
+    "title": "Forest Coverage by State and Territory",
+    "projection": {
+        "type": "equirectangular",
+        "center": [
+            -27,
+            137
+        ]
+    },
+    "data": {
+        "url": "geometry/states.json",
+        "format": {
+            "type": "topojson",
+            "feature": "STE_2021_AUST_GDA2020"
+        }
+    },
+    "transform": [
+        {
+            "filter": {
+                "field": "properties.STE_NAME21",
+                "oneOf": [
+                    "Western Australia",
+                    "Victoria",
+                    "New South Wales",
+                    "Queensland",
+                    "Northern Territory",
+                    "Tasmania",
+                    "South Australia",
+                    "Australian Capital Territory"
+                ]
+            }
+        },
+        {
+            "lookup": "properties.STE_NAME21",
+            "from": {
+                "data": {
+                    "url": "data/ABARES_Forest_Fire_area_2019_20_data_tables_28Apr.csv"
+                },
+                "key": "State",
+                "fields": [
+                    "Forest area/Native forest",
+                    "Forest area/Commercial plantation",
+                    "Forest area/Other forest",
+                    "Forest area/Total forest",
+                    "Burned area/Native forest",
+                    "Burned area/Commercial plantation",
+                    "Burned area/Other forest",
+                    "Burned area/Total forest",
+                    "Percentage burned/Native forest",
+                    "Percentage burned/Commercial plantation",
+                    "Percentage burned/Other forest",
+                    "Percentage burned/Total forest",
+                    "Latitude",
+                    "Longitude"
+                ]
+            }
+        },
+        {
+            "calculate": "10 * datum['Forest area/Total forest']",
+            "as": "Forest(KM2)"
+        },
+        {
+            "calculate": "100 * datum['Forest(KM2)'] / datum.properties.AREASQKM21",
+            "as": "Percent Forest"
+        }
+    ],
+    "layer": [
+        {
+            "data": {
+                "url": "geometry/ne_10m_graticules_5.json",
+                "format": {
+                    "type": "topojson",
+                    "feature": "ne_10m_graticules_5"
+                }
+            },
+            "mark": {
+                "type": "geoshape",
+                "fill": "white",
+                "stroke": "lightgray"
+            }
+        },
+        {
+            "mark": {
+                "type": "geoshape",
+                "fill": "lightgray",
+                "stroke": "white"
+            },
+            "encoding": {
+                "fill": {
+                    "field": "Percent Forest",
+                    "type": "quantitative",
+                    "scale": {
+                        "type": "linear"
+                    },
+                    "title": "Proportional Forest Area (%)"
+                },
+                "tooltip": [
+                    {
+                        "field": "properties.STE_NAME21",
+                        "type": "nominal",
+                        "title": "State/Territory"
+                    },
+                    {
+                        "field": "Forest(KM2)",
+                        "type": "quantitative",
+                        "format": ",.0f",
+                        "title": "Forest Area (KM2)"
+                    },
+                    {
+                        "field": "properties.AREASQKM21",
+                        "type": "quantitative",
+                        "format": ",.0f",
+                        "title": "Total Area (KM2)"
+                    }
+                ]
+            }
+        }
+    ]
+}

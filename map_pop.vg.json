@@ -1,0 +1,44 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 800,
+    "height": 450,
+    "title": "Map!!",
+    "projection": {
+        "type": "equirectangular",
+        "center": [
+            -27,
+            137
+        ]
+    },
+    "data": {
+        "url": "geometry/ABS_ERP_2001_2023_SA2.json",
+        "format": {
+            "type": "topojson",
+            "feature": "ABS_ERP_2001_2023_SA2"
+        }
+    },
+    "transform": [
+        {
+            "calculate": "toNumber(datum.properties.erp_no_222)",
+            "as": "population latest"
+        }
+    ],
+    "layer": [
+        {
+            "mark": {
+                "type": "geoshape",
+                "fill": "lightgray",
+                "stroke": "white"
+            },
+            "encoding": {
+                "fill": {
+                    "field": "population latest",
+                    "type": "quantitative",
+                    "scale": {
+                        "type": "linear"
+                    }
+                }
+            }
+        }
+    ]
+}
