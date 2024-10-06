@@ -1,0 +1,265 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {
+        "url": "data/burn_centres.csv"
+    },
+    "transform": [
+        {
+            "calculate": "split(datum.state, ' ')[0]",
+            "as": "state_code"
+        },
+        {
+            "calculate": "slice(split(datum.state, '(')[1], 0, -1)",
+            "as": "state_name"
+        },
+        {
+            "calculate": "timeParse(split(datum.ignition_date, ' ')[0], '%Y/%m/%d')",
+            "as": "ignition_date"
+        },
+        {
+            "calculate": "datetime(year(datum.ignition_date), month(datum.ignition_date))",
+            "as": "ignition_month"
+        },
+        {
+            "calculate": "datum.Shape__Area * 973205.204434",
+            "as": "true_shape_area"
+        }
+    ],
+    "vconcat": [
+        {
+            "title": {
+                "text": "Bushfires by State"
+            },
+            "width": 500,
+            "height": 450,
+            "transform": [
+                {
+                    "filter": {
+                        "param": "my_brush"
+                    }
+                }
+            ],
+            "projection": {
+                "type": "equirectangular",
+                "center": [
+                    -27,
+                    137
+                ]
+            },
+            "layer": [
+                {
+                    "data": {
+                        "url": "geometry/ne_10m_graticules_5.json",
+                        "format": {
+                            "type": "topojson",
+                            "feature": "ne_10m_graticules_5"
+                        }
+                    },
+                    "mark": {
+                        "type": "geoshape",
+                        "fill": "white",
+                        "stroke": "lightgray"
+                    }
+                },
+                {
+                    "data": {
+                        "url": "geometry/states_simple.json",
+                        "format": {
+                            "type": "topojson",
+                            "feature": "STE_2021_AUST_GDA2020"
+                        }
+                    },
+                    "mark": {
+                        "type": "geoshape",
+                        "fill": "white",
+                        "stroke": "lightgray"
+                    }
+                },
+                {
+                    "params": [
+                        {
+                            "name": "state_filter",
+                            "select": {
+                                "type": "point",
+                                "fields": [
+                                    "state_name"
+                                ]
+                            },
+                            "bind": "legend"
+                        }
+                    ],
+                    "mark": "circle",
+                    "encoding": {
+                        "latitude": {
+                            "field": "Y",
+                            "type": "quantitative"
+                        },
+                        "longitude": {
+                            "field": "X",
+                            "type": "quantitative"
+                        },
+                        "size": {
+                            "field": "true_shape_area",
+                            "type": "quantitative"
+                        },
+                        "color": {
+                            "field": "state_name",
+                            "type": "nominal"
+                        },
+                        "opacity": {
+                            "condition": {
+                                "param": "state_filter",
+                                "value": 1
+                            },
+                            "value": 0.2
+                        },
+                        "tooltip": [
+                            {
+                                "field": "state_name",
+                                "type": "nominal",
+                                "title": "State"
+                            },
+                            {
+                                "field": "area_ha",
+                                "type": "quantitative",
+                                "format": ",.0f",
+                                "title": "Burn Area (Hectre)"
+                            },
+                            {
+                                "field": "ignition_date",
+                                "type": "temporal",
+                                "title": "Ignition Date"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": {
+                "text": "Bushfires Over Time"
+            },
+            "width": 500,
+            "height": 450,
+            "layer": [
+                {
+                    "mark": "circle",
+                    "params": [
+                        {
+                            "name": "my_brush",
+                            "select": {
+                                "type": "interval",
+                                "encodings": [
+                                    "x"
+                                ]
+                            }
+                        }
+                    ],
+                    "transform": [
+                        {
+                            "filter": "datum.area_ha > 10000"
+                        }
+                    ],
+                    "encoding": {
+                        "x": {
+                            "field": "ignition_date",
+                            "type": "temporal",
+                            "title": "Ignition Date"
+                        },
+                        "y": {
+                            "field": "area_ha",
+                            "type": "quantitative",
+                            "title": "Burnt Area (Hectres)"
+                        },
+                        "size": {
+                            "field": "area_ha",
+                            "type": "quantitative",
+                            "title": "Burnt Area (Hectres)"
+                        },
+                        "color": {
+                            "field": "state_name",
+                            "type": "nominal",
+                            "title": "State"
+                        },
+                        "opacity": {
+                            "condition": {
+                                "param": "state_filter",
+                                "value": 1
+                            },
+                            "value": 0.2
+                        },
+                        "tooltip": [
+                            {
+                                "field": "state_name",
+                                "type": "nominal",
+                                "title": "State"
+                            },
+                            {
+                                "field": "area_ha",
+                                "type": "quantitative",
+                                "format": ",.0f",
+                                "title": "Burn Area (Hectre)"
+                            },
+                            {
+                                "field": "ignition_date",
+                                "type": "temporal",
+                                "title": "Ignition Date"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": {
+                "text": "Burned Area By Month"
+            },
+            "width": 500,
+            "height": 200,
+            "transform": [
+                {
+                    "filter": {
+                        "param": "my_brush"
+                    }
+                }
+            ],
+            "layer": [
+                {
+                    "mark": "bar",
+                    "encoding": {
+                        "x": {
+                            "field": "ignition_date",
+                            "timeUnit": "month",
+                            "title": "Ignition Date"
+                        },
+                        "y": {
+                            "aggregate": "sum",
+                            "field": "true_shape_area",
+                            "type": "quantitative",
+                            "title": "Burnt Area (Hectres)",
+                            "sort": "ascending"
+                        },
+                        "color": {
+                            "field": "state_name",
+                            "type": "nominal"
+                        },
+                        "opacity": {
+                            "condition": {
+                                "param": "state_filter",
+                                "value": 1
+                            },
+                            "value": 0.2
+                        },
+                        "tooltip": [
+                            {
+                                "field": "state_name",
+                                "type": "nominal",
+                                "title": "State"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
