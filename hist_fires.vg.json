@@ -169,7 +169,10 @@
                         "y": {
                             "field": "area_ha",
                             "type": "quantitative",
-                            "title": "Burnt Area (Hectres)"
+                            "title": "Burnt Area (Hectres)",
+                            "scale": {
+                                "type": "log"
+                            }
                         },
                         "size": {
                             "field": "area_ha",
@@ -186,7 +189,7 @@
                                 "param": "state_filter",
                                 "value": 1
                             },
-                            "value": 0.2
+                            "value": 0.01
                         },
                         "tooltip": [
                             {
@@ -236,8 +239,7 @@
                             "aggregate": "sum",
                             "field": "true_shape_area",
                             "type": "quantitative",
-                            "title": "Burnt Area (Hectres)",
-                            "sort": "ascending"
+                            "title": "Burnt Area (Hectres)"
                         },
                         "color": {
                             "field": "state_name",

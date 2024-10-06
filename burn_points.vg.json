@@ -2,7 +2,7 @@
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "ALL BURNS",
     "data": {
-        "url": "data/burn_centres.csv"
+        "url": "data/all_burns.csv"
     },
     "transform": [
         {
@@ -14,20 +14,22 @@
             "as": "state_name"
         },
         {
-            "calculate": "timeParse(split(datum.ignition_date, ' ')[0], '%Y/%m/%d')",
-            "as": "ignition_date_parsed"
-        },
-        {
-            "calculate": "datetime(year(datum.ignition_date), month(datum.ignition_date))",
-            "as": "ignition_month"
+            "calculate": "timeParse(split(datum.ignition_d, ' ')[0], '%Y-%m-%dT')",
+            "as": "ignition_date"
         },
         {
             "filter": "datum.fire_type != 'Prescribed Burn'"
+        },
+        {
+            "calculate": "datum.shape_area * 973205.204434",
+            "as": "true_shape_area"
         }
     ],
     "vconcat": [
         {
-            "title": "Centrepoints of Historical Bushfires",
+            "title": {
+                "text": "Bushfires by State"
+            },
             "width": 500,
             "height": 450,
             "projection": {
@@ -70,65 +72,20 @@
                     "mark": "circle",
                     "encoding": {
                         "latitude": {
-                            "field": "Y",
+                            "field": "latitude",
                             "type": "quantitative"
                         },
                         "longitude": {
-                            "field": "X",
+                            "field": "longitude",
                             "type": "quantitative"
                         },
                         "size": {
-                            "field": "area_ha",
+                            "field": "true_shape_area",
                             "type": "quantitative"
                         },
                         "color": {
                             "field": "state_name",
                             "type": "nominal"
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "title": {
-                "text": "Bushfires Over Time"
-            },
-            "width": 500,
-            "height": 450,
-            "layer": [
-                {
-                    "mark": "circle",
-                    "params": [
-                        {
-                            "name": "my_brush",
-                            "select": {
-                                "type": "interval",
-                                "encodings": [
-                                    "x"
-                                ]
-                            }
-                        }
-                    ],
-                    "encoding": {
-                        "x": {
-                            "field": "ignition_date_parsed",
-                            "type": "temporal",
-                            "title": "Ignition Date"
-                        },
-                        "y": {
-                            "field": "area_ha",
-                            "type": "quantitative",
-                            "title": "Burnt Area (Hectres)"
-                        },
-                        "size": {
-                            "field": "area_ha",
-                            "type": "quantitative",
-                            "title": "Burnt Area (Hectres)"
-                        },
-                        "color": {
-                            "field": "state_name",
-                            "type": "nominal",
-                            "title": "State"
                         },
                         "tooltip": [
                             {
@@ -143,7 +100,7 @@
                                 "title": "Burn Area (Hectre)"
                             },
                             {
-                                "field": "ignition_date_parsed",
+                                "field": "ignition_date",
                                 "type": "temporal",
                                 "title": "Ignition Date"
                             }
