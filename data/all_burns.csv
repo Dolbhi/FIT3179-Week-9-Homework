@@ -1,4 +1,4 @@
-latitude,longitude,ignition_d,area_ha,state,shape_area
+latitude,longitude,ignition_date,area_ha,state,shape_area
 -29.20868833,151.49414461660018,2009-12-05T00:00:00.000Z,22392,NSW (New South Wales),0.020805007
 -33.85918444,150.38507798390896,2012-12-04T00:00:00.000Z,539,NSW (New South Wales),0.000525428
 -25.3650233,114.59693420931866,2012-01-20T00:00:00.000Z,50,WA (Western Australia),4.4636365374e-05

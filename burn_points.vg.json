@@ -1,6 +1,5 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "title": "ALL BURNS",
     "data": {
         "url": "data/all_burns.csv"
     },
@@ -14,11 +13,12 @@
             "as": "state_name"
         },
         {
-            "calculate": "timeParse(split(datum.ignition_d, ' ')[0], '%Y-%m-%dT')",
+            "calculate": "timeParse(split(datum.ignition_date, 'T')[0], '%Y-%m-%d')",
             "as": "ignition_date"
         },
         {
-            "filter": "datum.fire_type != 'Prescribed Burn'"
+            "calculate": "datetime(year(datum.ignition_date), month(datum.ignition_date))",
+            "as": "ignition_month"
         },
         {
             "calculate": "datum.shape_area * 973205.204434",
@@ -32,6 +32,13 @@
             },
             "width": 500,
             "height": 450,
+            "transform": [
+                {
+                    "filter": {
+                        "param": "my_brush"
+                    }
+                }
+            ],
             "projection": {
                 "type": "equirectangular",
                 "center": [
@@ -69,6 +76,18 @@
                     }
                 },
                 {
+                    "params": [
+                        {
+                            "name": "state_filter",
+                            "select": {
+                                "type": "point",
+                                "fields": [
+                                    "state_name"
+                                ]
+                            },
+                            "bind": "legend"
+                        }
+                    ],
                     "mark": "circle",
                     "encoding": {
                         "latitude": {
@@ -87,6 +106,13 @@
                             "field": "state_name",
                             "type": "nominal"
                         },
+                        "opacity": {
+                            "condition": {
+                                "param": "state_filter",
+                                "value": 1
+                            },
+                            "value": 0.2
+                        },
                         "tooltip": [
                             {
                                 "field": "state_name",
@@ -103,6 +129,134 @@
                                 "field": "ignition_date",
                                 "type": "temporal",
                                 "title": "Ignition Date"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": {
+                "text": "Bushfires Over Time"
+            },
+            "width": 500,
+            "height": 450,
+            "layer": [
+                {
+                    "mark": "circle",
+                    "params": [
+                        {
+                            "name": "my_brush",
+                            "select": {
+                                "type": "interval",
+                                "encodings": [
+                                    "x"
+                                ]
+                            }
+                        }
+                    ],
+                    "transform": [
+                        {
+                            "filter": "datum.area_ha > 10000"
+                        }
+                    ],
+                    "encoding": {
+                        "x": {
+                            "field": "ignition_date",
+                            "type": "temporal",
+                            "title": "Ignition Date"
+                        },
+                        "y": {
+                            "field": "area_ha",
+                            "type": "quantitative",
+                            "title": "Burnt Area (Hectres)",
+                            "scale": {
+                                "type": "log"
+                            }
+                        },
+                        "size": {
+                            "field": "area_ha",
+                            "type": "quantitative",
+                            "title": "Burnt Area (Hectres)"
+                        },
+                        "color": {
+                            "field": "state_name",
+                            "type": "nominal",
+                            "title": "State"
+                        },
+                        "opacity": {
+                            "condition": {
+                                "param": "state_filter",
+                                "value": 1
+                            },
+                            "value": 0.01
+                        },
+                        "tooltip": [
+                            {
+                                "field": "state_name",
+                                "type": "nominal",
+                                "title": "State"
+                            },
+                            {
+                                "field": "area_ha",
+                                "type": "quantitative",
+                                "format": ",.0f",
+                                "title": "Burn Area (Hectre)"
+                            },
+                            {
+                                "field": "ignition_date",
+                                "type": "temporal",
+                                "title": "Ignition Date"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "title": {
+                "text": "Burned Area By Month"
+            },
+            "width": 500,
+            "height": 200,
+            "transform": [
+                {
+                    "filter": {
+                        "param": "my_brush"
+                    }
+                }
+            ],
+            "layer": [
+                {
+                    "mark": "bar",
+                    "encoding": {
+                        "x": {
+                            "field": "ignition_date",
+                            "timeUnit": "month",
+                            "title": "Ignition Date"
+                        },
+                        "y": {
+                            "aggregate": "sum",
+                            "field": "true_shape_area",
+                            "type": "quantitative",
+                            "title": "Burnt Area (Hectres)"
+                        },
+                        "color": {
+                            "field": "state_name",
+                            "type": "nominal"
+                        },
+                        "opacity": {
+                            "condition": {
+                                "param": "state_filter",
+                                "value": 1
+                            },
+                            "value": 0.2
+                        },
+                        "tooltip": [
+                            {
+                                "field": "state_name",
+                                "type": "nominal",
+                                "title": "State"
                             }
                         ]
                     }
